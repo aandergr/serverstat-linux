@@ -1,4 +1,4 @@
-CFLAGS+=-I/usr/local/include
-LDFLAGS+=-L/usr/local/lib -lrrd -lkvm -ldevstat
+CFLAGS+=-O2 -march=native -pipe -Wall -Wextra
+LDFLAGS+=-lrrd
 
 rrdupd: rrdupd.c

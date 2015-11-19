@@ -1,56 +1,37 @@
 /* Copyright (c) 2014 Alexander Graf.  All rights reserved. */
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <rrd.h>
-#include <stdlib.h>
-#include <kvm.h>
-#include <fcntl.h>
-#include <ifaddrs.h>
-#include <net/if.h>
-#include <devstat.h>
-#include <sys/devicestat.h>
 
+#include <rrd.h>
+
+
+#define HOMEDIR		"/home/ich/serverstat-linux"
 #define HEARTBEAT	120
 
-#define C_USER	0
-#define C_NICE	1
-#define C_SYS	2
-#define C_IR	3
-#define C_IDLE	4
-#define CSTATES	5
 
-/* TODO: use sysctl MIB */
+#define prefmatch(str, prefix) !strncmp(str, prefix, strlen(prefix))
 
-static kvm_t *kd;
+static FILE *proc_meminfo;
 
 static void update()
 {
-	unsigned int v_wire_count, v_active_count, v_inactive_count, v_cache_count;
-	double loadavg[3];
-	int temp0, temp1;
-	struct kvm_swap kvm_swap;
-	struct ifaddrs *ifap, *ifa;
-	u_long ibytes, obytes;
-	static u_long last_ibytes, last_obytes;
-	struct statinfo statinfo;
-	static struct devinfo devinfo;
-	static unsigned long last_dread[2], last_dwrite[2];
-	long cp_times[CSTATES*2];
-	static long last_cp_times[CSTATES*2];
-	static int last_valid;
-	long cp_times_diff[CSTATES*2];
-	long cp_times_dsum[2];
-	double cp_times_dn[CSTATES*2];
-	size_t len;
-	char *argv[4];
-	char buf[128];
+	// Not yet needed
+	//static int last_valid;
+
+	unsigned int vm_MemTotal = 0, vm_MemFree = 0, vm_Buffers = 0,
+		     vm_Cached = 0, vm_Shmem = 0;
 	int i;
+	char buf[64];
+	char *argv[4];
+
 
 	/* CPU usage */
+	#if 0
 	len = sizeof(cp_times);
 	sysctlbyname("kern.cp_times", cp_times, &len, 0, 0);
 	if (last_valid) {
@@ -81,16 +62,40 @@ static void update()
 	}
 cpuovfl:
 	memcpy(last_cp_times, cp_times, sizeof(cp_times));
+	#endif
 
 	/* VM stats */
-	len = sizeof(unsigned int);
-	sysctlbyname("vm.stats.vm.v_wire_count", &v_wire_count, &len, 0, 0);
-	sysctlbyname("vm.stats.vm.v_active_count", &v_active_count, &len, 0, 0);
-	sysctlbyname("vm.stats.vm.v_inactive_count", &v_inactive_count, &len, 0, 0);
-	sysctlbyname("vm.stats.vm.v_cache_count", &v_cache_count, &len, 0, 0);
+	rewind(proc_meminfo);
+	i = 0;
+	while (fgets(buf, sizeof(buf), proc_meminfo)) {
+		if (prefmatch(buf, "MemTotal:")) {
+			i++;
+			vm_MemTotal = atoi(buf + sizeof("MemTotal:"));
+		} else if (prefmatch(buf, "MemFree:")) {
+			i++;
+			vm_MemFree = atoi(buf + sizeof("MemFree:"));
+		} else if (prefmatch(buf, "Buffers:")) {
+			i++;
+			vm_Buffers = atoi(buf + sizeof("Buffers:"));
+		} else if (prefmatch(buf, "Cached:")) {
+			i++;
+			vm_Cached = atoi(buf + sizeof("Cached:"));
+		} else if (prefmatch(buf, "Shmem:")) {
+			i++;
+			vm_Shmem = atoi(buf + sizeof("Shmem:"));
+		}
+		if (i == 5)
+			break;
+	}
+	assert(i == 5);
+	assert((vm_MemTotal - (vm_MemFree + vm_Buffers + vm_Cached + vm_Shmem)) +
+	       (vm_MemFree - vm_Shmem) + vm_Shmem + vm_Buffers +
+	       (vm_Cached + vm_Shmem) == vm_MemTotal);
 	snprintf(buf, sizeof(buf), "N:%u:%u:%u:%u",
-	 	 v_active_count*4096, v_inactive_count*4096,
-		 v_wire_count*4096, v_cache_count*4096);
+		 1024 * (vm_MemTotal - (vm_MemFree + vm_Buffers + vm_Cached + vm_Shmem)),
+		 1024 * vm_Shmem,
+		 1024 * vm_Buffers,
+		 1024 * (vm_Cached + vm_Shmem));
 	argv[0] = "update";
 	argv[1] = "mem.rrd";
 	argv[2] = buf;
@@ -98,6 +103,7 @@ cpuovfl:
 	rrd_update(3, argv);
 
 	/* load average */
+	#if 0
 	getloadavg(loadavg, 3);
 	snprintf(buf, sizeof(buf), "N:%.6f:%.6f",
 		 loadavg[1], loadavg[2]);
@@ -106,8 +112,10 @@ cpuovfl:
 	argv[2] = buf;
 	argv[3] = 0;
 	rrd_update(3, argv);
+	#endif
 
 	/* cpu temperature */
+	#if 0
 	len = sizeof(temp0);
 	sysctlbyname("dev.cpu.0.temperature", &temp0, &len, 0, 0);
 	sysctlbyname("dev.cpu.1.temperature", &temp1, &len, 0, 0);
@@ -119,8 +127,10 @@ cpuovfl:
 	argv[2] = buf;
 	argv[3] = 0;
 	rrd_update(3, argv);
+	#endif
 
 	/* swap usage */
+	#if 0
 	kvm_getswapinfo(kd, &kvm_swap, 1, 0);
 	snprintf(buf, sizeof(buf), "N:%li", ((long) kvm_swap.ksw_used)*4);
 	argv[0] = "update";
@@ -128,8 +138,10 @@ cpuovfl:
 	argv[2] = buf;
 	argv[3] = 0;
 	rrd_update(3, argv);
+	#endif
 
 	/* network usage */
+	#if 0
 	getifaddrs(&ifap);
 	/* we take first entry of ifap and hope it is the right one */
 	ibytes = ((struct if_data *) ifap->ifa_data)->ifi_ibytes;
@@ -149,8 +161,10 @@ cpuovfl:
 	}
 	last_ibytes = ibytes;
 	last_obytes = obytes;
+	#endif
 
 	/* disk I/O */
+	#if 0
 	statinfo.dinfo = &devinfo;
 	devstat_getdevs(NULL, &statinfo);
 	if (last_valid &&
@@ -173,9 +187,10 @@ cpuovfl:
 	last_dread[1] = devinfo.devices[1].bytes[DEVSTAT_READ];
 	last_dwrite[0] = devinfo.devices[0].bytes[DEVSTAT_WRITE];
 	last_dwrite[1] = devinfo.devices[1].bytes[DEVSTAT_WRITE];
+	#endif
 
-	if (!last_valid)
-		last_valid = 1;
+	// Not yet needed
+	//last_valid = 1;
 }
 
 int main()
@@ -183,16 +198,17 @@ int main()
 	struct timespec tp;
 	time_t nextrun;
 
-	chdir("/home/serverstat/scripts");
+	if (chdir(HOMEDIR) != 0)
+		perror(HOMEDIR);
 
-	kd = kvm_open("/dev/null", "/dev/null", "/dev/null", O_RDONLY, "kvm_open");
+	proc_meminfo = fopen("/proc/meminfo", "r");
 
-	clock_gettime(CLOCK_MONOTONIC_FAST, &tp);
+	clock_gettime(CLOCK_MONOTONIC, &tp);
 	nextrun = tp.tv_sec;
 
 	while (1) {
 		update();
-		clock_gettime(CLOCK_MONOTONIC_FAST, &tp);
+		clock_gettime(CLOCK_MONOTONIC, &tp);
 		nextrun += HEARTBEAT;
 		if (nextrun - tp.tv_sec > 0)
 			sleep(nextrun - tp.tv_sec);
