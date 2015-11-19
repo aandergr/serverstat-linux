@@ -16,13 +16,12 @@
 
 #define prefmatch(str, prefix) !strncmp(str, prefix, strlen(prefix))
 
-static FILE *proc_meminfo;
-
 static void update()
 {
 	// Not yet needed
 	//static int last_valid;
 
+	FILE *proc_meminfo;
 	unsigned int vm_MemTotal = 0, vm_MemFree = 0, vm_Buffers = 0,
 		     vm_Cached = 0, vm_Shmem = 0;
 	int i;
@@ -65,7 +64,7 @@ cpuovfl:
 	#endif
 
 	/* VM stats */
-	rewind(proc_meminfo);
+	proc_meminfo = fopen("/proc/meminfo", "r");
 	i = 0;
 	while (fgets(buf, sizeof(buf), proc_meminfo)) {
 		if (prefmatch(buf, "MemTotal:")) {
@@ -87,6 +86,7 @@ cpuovfl:
 		if (i == 5)
 			break;
 	}
+	fclose(proc_meminfo);
 	assert(i == 5);
 	assert((vm_MemTotal - (vm_MemFree + vm_Buffers + vm_Cached + vm_Shmem)) +
 	       (vm_MemFree - vm_Shmem) + vm_Shmem + vm_Buffers +
@@ -201,7 +201,6 @@ int main()
 	if (chdir(HOMEDIR) != 0)
 		perror(HOMEDIR);
 
-	proc_meminfo = fopen("/proc/meminfo", "r");
 
 	clock_gettime(CLOCK_MONOTONIC, &tp);
 	nextrun = tp.tv_sec;
