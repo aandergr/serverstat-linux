@@ -1,6 +1,7 @@
 /* Copyright (c) 2014 Alexander Graf.  All rights reserved. */
 
 #include <assert.h>
+#include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,7 +11,6 @@
 #include <rrd.h>
 
 
-#define HOMEDIR		"/home/ich/serverstat-linux"
 #define HEARTBEAT	120
 
 
@@ -191,14 +191,15 @@ cpuovfl:
 	last_valid = 1;
 }
 
-int main()
+int main(int argc, char **argv)
 {
 	struct timespec tp;
 	time_t nextrun;
 
-	if (chdir(HOMEDIR) != 0)
-		perror(HOMEDIR);
-
+	/* go to directory where binary resides, as we expect rrd files there */
+	assert(argc == 1);
+	if (chdir(dirname(argv[0])) != 0)
+		perror("chdir");
 
 	clock_gettime(CLOCK_MONOTONIC, &tp);
 	nextrun = tp.tv_sec;

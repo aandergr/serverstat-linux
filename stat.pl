@@ -6,9 +6,9 @@ use strict;
 use warnings;
 
 use CGI 'param','header';
+use File::Basename;
 
 my $rrdtool_exe = "/usr/bin/rrdtool";
-my $locgraphpath = "/home/ich/serverstat-linux";
 
 my @ranges = (
 	{
@@ -83,8 +83,10 @@ $r = 0 unless $r;
 $r = 0 if $r < 0;
 $r = 0 unless $ranges[$r];
 
+chdir(dirname(__FILE__));
+
 for my $i ( 0 .. $#graphs ) {
-	system "$rrdtool_exe graph $locgraphpath/$graphs[$i]{'name'}$r.png --start -$ranges[$r]{'sec'} -w 720 -h 200 $graphs[$i]{'create'} >/dev/null";
+	system "$rrdtool_exe graph $graphs[$i]{'name'}$r.png --start -$ranges[$r]{'sec'} -w 720 -h 200 $graphs[$i]{'create'} >/dev/null";
 }
 
 print header;
