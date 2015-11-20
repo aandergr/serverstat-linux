@@ -19,21 +19,21 @@
 static void update()
 {
 	FILE *proc;
-	unsigned int vm_MemTotal = 0, vm_MemFree = 0, vm_Buffers = 0,
-		     vm_Cached = 0, vm_Shmem = 0;
+	unsigned long vm_MemTotal = 0, vm_MemFree = 0, vm_Buffers = 0,
+		      vm_Cached = 0, vm_Shmem = 0;
 	int i;
 	char buf[64];
 	char *argv[4];
-	unsigned int cp_times[7], cp_times_diff[7], cp_times_dsum;
-	static unsigned int last_valid, last_cp_times[7];
-	double cp_times_dn[7];
+	unsigned long cp_times[7], cp_times_diff[7], cp_times_dsum;
+	static unsigned long last_cp_times[7];
+	static int last_valid;
+	float cp_times_dn[7];
 	float loadavg5, loadavg15;
-
 
 
 	/* CPU usage */
 	proc = fopen("/proc/stat", "r");
-	i = fscanf(proc, "%*s %d %d %d %d %d %d %d",
+	i = fscanf(proc, "%*s %ld %ld %ld %ld %ld %ld %ld",
 		   &cp_times[0], &cp_times[1], &cp_times[2], &cp_times[3],
 		   &cp_times[4], &cp_times[5], &cp_times[6]);
 	assert(i == 7);
@@ -49,7 +49,7 @@ static void update()
 			cp_times_dsum += cp_times_diff[i];
 		}
 		for (i = 0; i < 7; i++) {
-			cp_times_dn[i] = (double) cp_times_diff[i] / cp_times_dsum;
+			cp_times_dn[i] = (float) cp_times_diff[i] / cp_times_dsum;
 		}
 		snprintf(buf, sizeof(buf), "N:%.6f:%.6f:%.6f:%.6f:%.6f:%.6f",
 			 cp_times_dn[0], cp_times_dn[1], cp_times_dn[2],
@@ -91,7 +91,7 @@ cpuovfl:
 	assert((vm_MemTotal - (vm_MemFree + vm_Buffers + vm_Cached + vm_Shmem)) +
 	       (vm_MemFree - vm_Shmem) + vm_Shmem + vm_Buffers +
 	       (vm_Cached + vm_Shmem) == vm_MemTotal);
-	snprintf(buf, sizeof(buf), "N:%u:%u:%u:%u",
+	snprintf(buf, sizeof(buf), "N:%lu:%lu:%lu:%lu",
 		 1024 * (vm_MemTotal - (vm_MemFree + vm_Buffers + vm_Cached + vm_Shmem)),
 		 1024 * vm_Shmem,
 		 1024 * vm_Buffers,
