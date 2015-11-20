@@ -10,13 +10,13 @@ rrdtool create loadavg.rrd -s 120\
 	RRA:AVERAGE:0.5:180:224	\
 	RRA:AVERAGE:0.5:720:365
 
-#rrdtool create traffic.rrd -s 120\
-#	DS:rx:GAUGE:240:0:U	\
-#	DS:tx:GAUGE:240:0:U	\
-#	RRA:AVERAGE:0.5:1:720	\
-#	RRA:AVERAGE:0.5:15:336	\
-#	RRA:AVERAGE:0.5:180:224	\
-#	RRA:AVERAGE:0.5:720:365
+rrdtool create traffic.rrd -s 120\
+	DS:rx:GAUGE:240:0:U	\
+	DS:tx:GAUGE:240:0:U	\
+	RRA:AVERAGE:0.5:1:720	\
+	RRA:AVERAGE:0.5:15:336	\
+	RRA:AVERAGE:0.5:180:224	\
+	RRA:AVERAGE:0.5:720:365
 
 rrdtool create mem.rrd -s 120	\
 	DS:used:GAUGE:240:0:U	\

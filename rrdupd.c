@@ -21,14 +21,18 @@ static void update()
 	FILE *proc;
 	unsigned long vm_MemTotal = 0, vm_MemFree = 0, vm_Buffers = 0,
 		      vm_Cached = 0, vm_Shmem = 0;
-	int i;
-	char buf[64];
+	int i, j;
+	char buf[128];
 	char *argv[4];
 	unsigned long cp_times[7], cp_times_diff[7], cp_times_dsum;
 	static unsigned long last_cp_times[7];
 	static int last_valid;
 	float cp_times_dn[7];
 	float loadavg5, loadavg15;
+	char devname[16];
+	unsigned long ibytes, obytes;
+	unsigned long ibytes_d, obytes_d;
+	static unsigned long last_ibytes, last_obytes;
 
 
 	/* CPU usage */
@@ -141,12 +145,23 @@ cpuovfl:
 	#endif
 
 	/* network usage */
-	#if 0
-	getifaddrs(&ifap);
-	/* we take first entry of ifap and hope it is the right one */
-	ibytes = ((struct if_data *) ifap->ifa_data)->ifi_ibytes;
-	obytes = ((struct if_data *) ifap->ifa_data)->ifi_obytes;
-	freeifaddrs(ifap);
+	proc = fopen("/proc/net/dev", "r");
+	i = 0;
+	ibytes = obytes = 0;
+	while (fgets(buf, sizeof(buf), proc)) {
+		if (i++ < 2)
+			/* skip first two lines */
+			continue;
+		j = sscanf(buf, "%15s %ld %*d %*d %*d %*d %*d %*d %*d %ld",
+			   devname, &ibytes_d, &obytes_d);
+		assert(j == 3);
+		if (!strcmp(devname, "lo:"))
+			/* skip loopback interface */
+			continue;
+		ibytes += ibytes_d;
+		obytes += obytes_d;
+	}
+	fclose(proc);
 	if (last_valid &&
 	    ibytes >= last_ibytes &&
 	    obytes >= last_obytes) {
@@ -161,7 +176,6 @@ cpuovfl:
 	}
 	last_ibytes = ibytes;
 	last_obytes = obytes;
-	#endif
 
 	/* disk I/O */
 	#if 0

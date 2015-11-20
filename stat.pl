@@ -64,12 +64,12 @@ my @graphs = (
 #		'title' => "Disk I/O",
 #		'create' => "-v \"Bits/Second\" DEF:r0=disk.rrd:r0:AVERAGE DEF:r1=disk.rrd:r1:AVERAGE DEF:w0=disk.rrd:w0:AVERAGE DEF:w1=disk.rrd:w1:AVERAGE CDEF:r0b=r0,8,* CDEF:r1b=r1,8,* CDEF:w0b=w0,-8,* CDEF:w1b=w1,-8,* AREA:r0b\#ff0000:\"read0\" AREA:r1b\#ffff00:\"read1\":STACK HRULE:0#000000 AREA:w0b\#00ffff:\"write0\" AREA:w1b\#0000ff:\"write1\":STACK"
 #	},
-#	{
-#		'name' => "traffic",
-#		'title' => "Network RX/TX",
-#		'create' => "-v \"Bits/Second\" DEF:rx=traffic.rrd:rx:AVERAGE DEF:tx=traffic.rrd:tx:AVERAGE CDEF:rxb=rx,-8,* CDEF:txb=tx,8,* AREA:txb\#ff0000:\"Upload\" AREA:rxb\#00ffff:\"Download\" HRULE:0#000000"
-#	},
 
+	{
+		'name' => "traffic",
+		'title' => "Network RX/TX",
+		'create' => "-v \"Bits/Second\" DEF:rx=traffic.rrd:rx:AVERAGE DEF:tx=traffic.rrd:tx:AVERAGE CDEF:rxb=rx,-8,* CDEF:txb=tx,8,* AREA:txb\#ff0000:\"Upload\" AREA:rxb\#00ffff:\"Download\" HRULE:0#000000"
+	},
 
 	{
 		'name' => "mem",
