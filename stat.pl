@@ -39,7 +39,7 @@ my @graphs = (
 	{
 		'name' => "cpu",
 		'title' => "CPU Usage",
-		'create' => "-v \"Used CPUs\" -l 0 DEF:user=cpu.rrd:user:AVERAGE DEF:nice=cpu.rrd:nice:AVERAGE DEF:system=cpu.rrd:system:AVERAGE DEF:iowait=cpu.rrd:iowait:AVERAGE DEF:irq=cpu.rrd:irq:AVERAGE DEF:softirq=cpu.rrd:softirq:AVERAGE AREA:user\#ff0000:\"user\" AREA:nice\#ffff00:\"nice\":STACK AREA:system\#00ff00:\"system\":STACK AREA:iowait\#00ffff:\"iowait\":STACK AREA:irq\#0000ff:\"irq\":STACK AREA:softirq\#ff00ff:\"softirq\":STACK"
+		'create' => "-v \"CPU usage\" -r -l 0 -u 1 DEF:user=cpu.rrd:user:AVERAGE DEF:nice=cpu.rrd:nice:AVERAGE DEF:system=cpu.rrd:system:AVERAGE DEF:iowait=cpu.rrd:iowait:AVERAGE DEF:irq=cpu.rrd:irq:AVERAGE DEF:softirq=cpu.rrd:softirq:AVERAGE AREA:user\#ff0000:\"user\" AREA:nice\#ffff00:\"nice\":STACK AREA:system\#00ff00:\"system\":STACK AREA:iowait\#00ffff:\"iowait\":STACK AREA:irq\#0000ff:\"irq\":STACK AREA:softirq\#ff00ff:\"softirq\":STACK"
 	},
 
 #	{
