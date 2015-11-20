@@ -35,13 +35,13 @@ my @graphs = (
 #		'title' => "Load Average",
 #		'create' => "-v \"Threads\" -l 0 DEF:la5=loadavg.rrd:la5:AVERAGE DEF:la15=loadavg.rrd:la15:AVERAGE LINE:la5\#ff0000:\"Fünf Minuten\" LINE:la15\#0000ff:\"15 Minuten\""
 #	},
-#
-#	{
-#		'name' => "cpu",
-#		'title' => "CPU Usage",
-#		'create' => "-v \"Used CPUs\" -l 0 DEF:u0=cpu.rrd:user0:AVERAGE DEF:u1=cpu.rrd:user1:AVERAGE DEF:n0=cpu.rrd:nice0:AVERAGE DEF:n1=cpu.rrd:nice1:AVERAGE DEF:s0=cpu.rrd:sys0:AVERAGE DEF:s1=cpu.rrd:sys1:AVERAGE DEF:i0=cpu.rrd:ir0:AVERAGE DEF:i1=cpu.rrd:ir1:AVERAGE AREA:u0\#ff0000:\"user0\" AREA:u1\#ff7f00:\"user1\":STACK AREA:n0\#7fff00:\"nice0\":STACK AREA:n1\#00ff00:\"nice1\":STACK AREA:s0\#00ffff:\"sys0\":STACK AREA:s1\#007fff:\"sys1\":STACK AREA:i0\#7f00ff:\"ir0\":STACK AREA:i1\#ff00ff:\"ir1\":STACK"
-#	},
-#
+
+	{
+		'name' => "cpu",
+		'title' => "CPU Usage",
+		'create' => "-v \"Used CPUs\" -l 0 DEF:user=cpu.rrd:user:AVERAGE DEF:nice=cpu.rrd:nice:AVERAGE DEF:system=cpu.rrd:system:AVERAGE DEF:iowait=cpu.rrd:iowait:AVERAGE DEF:irq=cpu.rrd:irq:AVERAGE DEF:softirq=cpu.rrd:softirq:AVERAGE AREA:user\#ff0000:\"user\" AREA:nice\#ffff00:\"nice\":STACK AREA:system\#00ff00:\"system\":STACK AREA:iowait\#00ffff:\"iowait\":STACK AREA:irq\#0000ff:\"irq\":STACK AREA:softirq\#ff00ff:\"softirq\":STACK"
+	},
+
 #	{
 #		'name' => "temp",
 #		'title' => "CPU Temperature",

@@ -21,52 +21,52 @@ static void update()
 	// Not yet needed
 	//static int last_valid;
 
-	FILE *proc_meminfo;
+	FILE *proc;
 	unsigned int vm_MemTotal = 0, vm_MemFree = 0, vm_Buffers = 0,
 		     vm_Cached = 0, vm_Shmem = 0;
 	int i;
 	char buf[64];
 	char *argv[4];
+	unsigned int cp_times[7], cp_times_diff[7], cp_times_dsum;
+	static unsigned int last_valid, last_cp_times[7];
+	double cp_times_dn[7];
+
 
 
 	/* CPU usage */
-	#if 0
-	len = sizeof(cp_times);
-	sysctlbyname("kern.cp_times", cp_times, &len, 0, 0);
-	if (last_valid) {
-		for (i = 0; i < CSTATES*2; i++) {
+	proc = fopen("/proc/stat", "r");
+	fscanf(proc, "%*s %d %d %d %d %d %d %d", &cp_times[0], &cp_times[1], &cp_times[2], &cp_times[3], &cp_times[4], &cp_times[5], &cp_times[6]);
+        if (last_valid) {
+		for (i = 0; i < 7; i++) {
 			if (last_cp_times[i] > cp_times[i])
 				goto cpuovfl;
 			cp_times_diff[i] = cp_times[i] - last_cp_times[i];
 		}
-		cp_times_dsum[0] = cp_times_dsum[1] = 0;
-		for (i = 0; i < CSTATES; i++) {
-			cp_times_dsum[0] += cp_times_diff[i];
-			cp_times_dsum[1] += cp_times_diff[i+CSTATES];
+		cp_times_dsum = 0;
+		for (i = 0; i < 7; i++) {
+			cp_times_dsum += cp_times_diff[i];
 		}
-		for (i = 0; i < CSTATES-1; i++) {
-			cp_times_dn[i] = (double) cp_times_diff[i] / cp_times_dsum[0];
-			cp_times_dn[i+CSTATES] = (double) cp_times_diff[i+CSTATES] / cp_times_dsum[1];
+		for (i = 0; i < 7; i++) {
+			cp_times_dn[i] = (double) cp_times_diff[i] / cp_times_dsum;
 		}
-		snprintf(buf, sizeof(buf), "N:%.6f:%.6f:%.6f:%.6f:%.6f:%.6f:%.6f:%.6f",
-			 cp_times_dn[0], cp_times_dn[CSTATES+0],
-			 cp_times_dn[1], cp_times_dn[CSTATES+1],
-			 cp_times_dn[2], cp_times_dn[CSTATES+2],
-			 cp_times_dn[3], cp_times_dn[CSTATES+3]);
+		snprintf(buf, sizeof(buf), "N:%.6f:%.6f:%.6f:%.6f:%.6f:%.6f",
+			 cp_times_dn[0], cp_times_dn[1], cp_times_dn[2],
+			 cp_times_dn[4], cp_times_dn[5], cp_times_dn[6]);
 		argv[0] = "update";
 		argv[1] = "cpu.rrd";
 		argv[2] = buf;
 		argv[3] = 0;
 		rrd_update(3, argv);
-	}
+        }
 cpuovfl:
 	memcpy(last_cp_times, cp_times, sizeof(cp_times));
-	#endif
-
+	
+	
+	
 	/* VM stats */
-	proc_meminfo = fopen("/proc/meminfo", "r");
+	proc = fopen("/proc/meminfo", "r");
 	i = 0;
-	while (fgets(buf, sizeof(buf), proc_meminfo)) {
+	while (fgets(buf, sizeof(buf), proc)) {
 		if (prefmatch(buf, "MemTotal:")) {
 			i++;
 			vm_MemTotal = atoi(buf + sizeof("MemTotal:"));
@@ -86,7 +86,7 @@ cpuovfl:
 		if (i == 5)
 			break;
 	}
-	fclose(proc_meminfo);
+	fclose(proc);
 	assert(i == 5);
 	assert((vm_MemTotal - (vm_MemFree + vm_Buffers + vm_Cached + vm_Shmem)) +
 	       (vm_MemFree - vm_Shmem) + vm_Shmem + vm_Buffers +
@@ -189,8 +189,7 @@ cpuovfl:
 	last_dwrite[1] = devinfo.devices[1].bytes[DEVSTAT_WRITE];
 	#endif
 
-	// Not yet needed
-	//last_valid = 1;
+	last_valid = 1;
 }
 
 int main()

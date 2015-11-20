@@ -42,20 +42,18 @@ rrdtool create mem.rrd -s 120	\
 #	RRA:AVERAGE:0.5:180:224	\
 #	RRA:AVERAGE:0.5:720:365
 #
-#rrdtool create cpu.rrd -s 120	\
-#	DS:user0:GAUGE:240:0:1\
-#	DS:user1:GAUGE:240:0:1\
-#	DS:nice0:GAUGE:240:0:1\
-#	DS:nice1:GAUGE:240:0:1\
-#	DS:sys0:GAUGE:240:0:1	\
-#	DS:sys1:GAUGE:240:0:1	\
-#	DS:ir0:GAUGE:240:0:1	\
-#	DS:ir1:GAUGE:240:0:1	\
-#	RRA:AVERAGE:0.5:1:720	\
-#	RRA:AVERAGE:0.5:15:336	\
-#	RRA:AVERAGE:0.5:180:224	\
-#	RRA:AVERAGE:0.5:720:365
-#
+rrdtool create cpu.rrd -s 120	\
+	DS:user:GAUGE:240:0:1\
+	DS:nice:GAUGE:240:0:1\
+	DS:system:GAUGE:240:0:1	\
+	DS:iowait:GAUGE:240:0:1	\
+	DS:irq:GAUGE:240:0:1	\
+	DS:softirq:GAUGE:240:0:1	\
+	RRA:AVERAGE:0.5:1:720	\
+	RRA:AVERAGE:0.5:15:336	\
+	RRA:AVERAGE:0.5:180:224	\
+	RRA:AVERAGE:0.5:720:365
+
 #rrdtool create disk.rrd -s 120	\
 #	DS:r0:GAUGE:240:0:U	\
 #	DS:r1:GAUGE:240:0:U	\
