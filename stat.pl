@@ -115,7 +115,7 @@ print "<body>";
 print "<h1>Serverstatistik</h1>";
 #print "<p>Copyright (c) 2011, 2014 Alexander Graf.</p>";
 
-#print "<pre>"; system("uptime; /sbin/sysctl dev.cpu.0.temperature dev.cpu.1.temperature; df -h"); print "</pre>";
+print "<pre>"; system("uptime"); print "</pre>";
 
 print "<p>Zeige Zeitraum des/der <b>letzten</b>: ";
 
