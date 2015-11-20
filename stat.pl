@@ -29,6 +29,17 @@ my @ranges = (
 	}
 );
 
+# get total amount of RAM for appropriate scaling
+my $MemTotal;
+open INFILE, "< /proc/meminfo";
+while (<INFILE>) {
+	if (/^MemTotal: *(\d*)/) {
+		$MemTotal = $1*1024;
+		last;
+	}
+}
+close INFILE;
+
 my @graphs = (
 #	{
 #		'name' => "loadavg",
@@ -63,7 +74,7 @@ my @graphs = (
 	{
 		'name' => "mem",
 		'title' => "RAM Usage",
-		'create' => "-v \"Bytes\" -b 1024 -r -l 0 -u 8313004032 DEF:used=mem.rrd:used:AVERAGE DEF:shared=mem.rrd:shared:AVERAGE DEF:buffers=mem.rrd:buffers:AVERAGE DEF:cache=mem.rrd:cache:AVERAGE AREA:used\#ff0000:\"used\" AREA:shared#7fff00:\"shared\":STACK AREA:buffers\#00ffff:\"buffers\":STACK AREA:cache\#7f00ff:\"cache\":STACK"
+		'create' => "-v \"Bytes\" -b 1024 -r -l 0 -u ${MemTotal} DEF:used=mem.rrd:used:AVERAGE DEF:shared=mem.rrd:shared:AVERAGE DEF:buffers=mem.rrd:buffers:AVERAGE DEF:cache=mem.rrd:cache:AVERAGE AREA:used\#ff0000:\"used\" AREA:shared#7fff00:\"shared\":STACK AREA:buffers\#00ffff:\"buffers\":STACK AREA:cache\#7f00ff:\"cache\":STACK"
 	},
 
 #	{
