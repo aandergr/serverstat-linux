@@ -18,9 +18,6 @@
 
 static void update()
 {
-	// Not yet needed
-	//static int last_valid;
-
 	FILE *proc;
 	unsigned int vm_MemTotal = 0, vm_MemFree = 0, vm_Buffers = 0,
 		     vm_Cached = 0, vm_Shmem = 0;
@@ -35,7 +32,11 @@ static void update()
 
 	/* CPU usage */
 	proc = fopen("/proc/stat", "r");
-	fscanf(proc, "%*s %d %d %d %d %d %d %d", &cp_times[0], &cp_times[1], &cp_times[2], &cp_times[3], &cp_times[4], &cp_times[5], &cp_times[6]);
+	i = fscanf(proc, "%*s %d %d %d %d %d %d %d",
+		   &cp_times[0], &cp_times[1], &cp_times[2], &cp_times[3],
+		   &cp_times[4], &cp_times[5], &cp_times[6]);
+	assert(i == 7);
+	fclose(proc);
         if (last_valid) {
 		for (i = 0; i < 7; i++) {
 			if (last_cp_times[i] > cp_times[i])
@@ -60,9 +61,7 @@ static void update()
         }
 cpuovfl:
 	memcpy(last_cp_times, cp_times, sizeof(cp_times));
-	
-	
-	
+
 	/* VM stats */
 	proc = fopen("/proc/meminfo", "r");
 	i = 0;
