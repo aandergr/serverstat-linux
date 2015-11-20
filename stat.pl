@@ -86,7 +86,7 @@ $r = 0 unless $ranges[$r];
 chdir(dirname(__FILE__));
 
 for my $i ( 0 .. $#graphs ) {
-	system "$rrdtool_exe graph $graphs[$i]{'name'}$r.png --start -$ranges[$r]{'sec'} -w 720 -h 200 $graphs[$i]{'create'} >/dev/null";
+	system "$rrdtool_exe graph --lazy $graphs[$i]{'name'}$r.png --start -$ranges[$r]{'sec'} -w 720 -h 200 $graphs[$i]{'create'} >/dev/null";
 }
 
 print header;
