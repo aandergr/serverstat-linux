@@ -2,14 +2,14 @@
 
 # Copyright (c) 2011, 2014 Alexander Graf.  All rights reserved.
 
-#rrdtool create loadavg.rrd -s 120\
-#	DS:la5:GAUGE:240:0:U	\
-#	DS:la15:GAUGE:240:0:U	\
-#	RRA:AVERAGE:0.5:1:720	\
-#	RRA:AVERAGE:0.5:15:336	\
-#	RRA:AVERAGE:0.5:180:224	\
-#	RRA:AVERAGE:0.5:720:365
-#
+rrdtool create loadavg.rrd -s 120\
+	DS:la5:GAUGE:240:0:U	\
+	DS:la15:GAUGE:240:0:U	\
+	RRA:AVERAGE:0.5:1:720	\
+	RRA:AVERAGE:0.5:15:336	\
+	RRA:AVERAGE:0.5:180:224	\
+	RRA:AVERAGE:0.5:720:365
+
 #rrdtool create traffic.rrd -s 120\
 #	DS:rx:GAUGE:240:0:U	\
 #	DS:tx:GAUGE:240:0:U	\

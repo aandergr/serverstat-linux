@@ -27,6 +27,7 @@ static void update()
 	unsigned int cp_times[7], cp_times_diff[7], cp_times_dsum;
 	static unsigned int last_valid, last_cp_times[7];
 	double cp_times_dn[7];
+	float loadavg5, loadavg15;
 
 
 
@@ -102,16 +103,16 @@ cpuovfl:
 	rrd_update(3, argv);
 
 	/* load average */
-	#if 0
-	getloadavg(loadavg, 3);
-	snprintf(buf, sizeof(buf), "N:%.6f:%.6f",
-		 loadavg[1], loadavg[2]);
+	proc = fopen("/proc/loadavg", "r");
+	i = fscanf(proc, "%*f %f %f", &loadavg5, &loadavg15);
+	assert(i == 2);
+	fclose(proc);
+	snprintf(buf, sizeof(buf), "N:%.6f:%.6f", loadavg5, loadavg15);
 	argv[0] = "update";
 	argv[1] = "loadavg.rrd";
 	argv[2] = buf;
 	argv[3] = 0;
 	rrd_update(3, argv);
-	#endif
 
 	/* cpu temperature */
 	#if 0

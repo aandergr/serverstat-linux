@@ -41,11 +41,11 @@ while (<INFILE>) {
 close INFILE;
 
 my @graphs = (
-#	{
-#		'name' => "loadavg",
-#		'title' => "Load Average",
-#		'create' => "-v \"Threads\" -l 0 DEF:la5=loadavg.rrd:la5:AVERAGE DEF:la15=loadavg.rrd:la15:AVERAGE LINE:la5\#ff0000:\"Fünf Minuten\" LINE:la15\#0000ff:\"15 Minuten\""
-#	},
+	{
+		'name' => "loadavg",
+		'title' => "Load Average",
+		'create' => "-v \"Threads\" -l 0 DEF:la5=loadavg.rrd:la5:AVERAGE DEF:la15=loadavg.rrd:la15:AVERAGE LINE:la5\#ff0000:\"Fünf Minuten\" LINE:la15\#00ffff:\"15 Minuten\""
+	},
 
 	{
 		'name' => "cpu",
