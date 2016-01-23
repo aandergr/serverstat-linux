@@ -36,7 +36,7 @@ rrdtool create mem.rrd -s 120	\
 #	RRA:AVERAGE:0.5:720:365
 #
 rrdtool create temp.rrd -s 120	\
-	DS:core:GAUGE:240:0:99	\
+	DS:core:GAUGE:240:0:120	\
 	RRA:AVERAGE:0.5:1:720	\
 	RRA:AVERAGE:0.5:15:336	\
 	RRA:AVERAGE:0.5:180:224	\

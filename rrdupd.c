@@ -1,4 +1,4 @@
-/* Copyright (c) 2014 Alexander Graf.  All rights reserved. */
+/* Copyright (c) 2014, 2016 Alexander Graf.  All rights reserved. */
 
 #include <assert.h>
 #include <libgen.h>
@@ -13,8 +13,13 @@
 
 #define HEARTBEAT	120
 
+#define TEMPSENSOR	"/sys/devices/virtual/thermal/thermal_zone0/temp"
+#define TEMPSAMPLES	8
+
 
 #define prefmatch(str, prefix) !strncmp(str, prefix, strlen(prefix))
+
+static int temp_sum;
 
 static void update()
 {
@@ -29,7 +34,6 @@ static void update()
 	static int last_valid;
 	float cp_times_dn[7];
 	float loadavg5, loadavg15;
-	int temp;
 	char devname[16];
 	unsigned long ibytes, obytes;
 	unsigned long ibytes_d, obytes_d;
@@ -120,11 +124,9 @@ cpuovfl:
 	rrd_update(3, argv);
 
 	/* cpu temperature */
-	proc = fopen("/sys/devices/virtual/thermal/thermal_zone0/temp", "r");
-	i = fscanf(proc, "%d", &temp);
-	assert(i == 1);
-	fclose(proc);
-	snprintf(buf, sizeof(buf), "N:%i", temp/1000);
+	snprintf(buf, sizeof(buf), "N:%.3f",
+		 temp_sum / 1000.0 / (float) TEMPSAMPLES);
+	temp_sum = 0;
 	argv[0] = "update";
 	argv[1] = "temp.rrd";
 	argv[2] = buf;
@@ -204,10 +206,24 @@ cpuovfl:
 	last_valid = 1;
 }
 
+static void measure_temp()
+{
+	FILE *proc;
+	int i, temp;
+
+	proc = fopen(TEMPSENSOR, "r");
+	i = fscanf(proc, "%d", &temp);
+	assert(i == 1);
+	fclose(proc);
+
+	temp_sum += temp;
+}
+
 int main(int argc, char **argv)
 {
 	struct timespec tp;
 	time_t nextrun;
+	int cnt = 0;
 
 	/* go to directory where binary resides, as we expect rrd files there */
 	assert(argc == 1);
@@ -218,9 +234,15 @@ int main(int argc, char **argv)
 	nextrun = tp.tv_sec;
 
 	while (1) {
-		update();
+		measure_temp();
+
+		if (++cnt == TEMPSAMPLES) {
+			update();
+			cnt = 0;
+		}
+
 		clock_gettime(CLOCK_MONOTONIC, &tp);
-		nextrun += HEARTBEAT;
+		nextrun += HEARTBEAT / TEMPSAMPLES;
 		if (nextrun - tp.tv_sec > 0)
 			sleep(nextrun - tp.tv_sec);
 	}
