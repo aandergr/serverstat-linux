@@ -53,11 +53,11 @@ my @graphs = (
 		'create' => "-v \"CPU usage\" -r -l 0 -u 1 DEF:user=cpu.rrd:user:AVERAGE DEF:nice=cpu.rrd:nice:AVERAGE DEF:system=cpu.rrd:system:AVERAGE DEF:iowait=cpu.rrd:iowait:AVERAGE DEF:irq=cpu.rrd:irq:AVERAGE DEF:softirq=cpu.rrd:softirq:AVERAGE AREA:user\#ff0000:\"user\" AREA:nice\#ffff00:\"nice\":STACK AREA:system\#00ff00:\"system\":STACK AREA:iowait\#00ffff:\"iowait\":STACK AREA:irq\#0000ff:\"irq\":STACK AREA:softirq\#ff00ff:\"softirq\":STACK"
 	},
 
-#	{
-#		'name' => "temp",
-#		'title' => "CPU Temperature",
-#		'create' => "-v \"deg. Celsius\" -g -A DEF:c0=temp.rrd:core:AVERAGE LINE:c0\#ff0000:\"cpu\""
-#	},
+	{
+		'name' => "temp",
+		'title' => "CPU Temperature",
+		'create' => "-v \"deg. Celsius\" -g -A DEF:c0=temp.rrd:core:AVERAGE LINE:c0\#ff0000:\"cpu\""
+	},
 #
 #	{
 #		'name' => "disk",
@@ -115,7 +115,7 @@ print "<body>";
 print "<h1>Serverstatistik</h1>";
 #print "<p>Copyright (c) 2011, 2014 Alexander Graf.</p>";
 
-print "<pre>"; system("uptime"); print "</pre>";
+print "<pre>"; system("uptime; echo; echo -n Temp:; cat /sys/devices/virtual/thermal/thermal_zone0/temp; echo; df -h; echo; free -tm"); print "</pre>";
 
 print "<p>Zeige Zeitraum des/der <b>letzten</b>: ";
 

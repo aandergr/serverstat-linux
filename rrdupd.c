@@ -29,6 +29,7 @@ static void update()
 	static int last_valid;
 	float cp_times_dn[7];
 	float loadavg5, loadavg15;
+	int temp;
 	char devname[16];
 	unsigned long ibytes, obytes;
 	unsigned long ibytes_d, obytes_d;
@@ -119,19 +120,16 @@ cpuovfl:
 	rrd_update(3, argv);
 
 	/* cpu temperature */
-	#if 0
-	len = sizeof(temp0);
-	sysctlbyname("dev.cpu.0.temperature", &temp0, &len, 0, 0);
-	sysctlbyname("dev.cpu.1.temperature", &temp1, &len, 0, 0);
-	temp0 = (temp0 - 2732) / 10;	/* Kelvin -> Celsius */
-	temp1 = (temp1 - 2732) / 10;
-	snprintf(buf, sizeof(buf), "N:%f", (double) (temp0 + temp1) / 2.0);
+	proc = fopen("/sys/devices/virtual/thermal/thermal_zone0/temp", "r");
+	i = fscanf(proc, "%d", &temp);
+	assert(i == 1);
+	fclose(proc);
+	snprintf(buf, sizeof(buf), "N:%i", temp/1000);
 	argv[0] = "update";
 	argv[1] = "temp.rrd";
 	argv[2] = buf;
 	argv[3] = 0;
 	rrd_update(3, argv);
-	#endif
 
 	/* swap usage */
 	#if 0
