@@ -1,4 +1,5 @@
-/* Copyright (c) 2014, 2016 Alexander Graf.  All rights reserved. */
+/* Copyright (c) 2014, 2016 Alexander Graf and André Koch-Kramer.
+ * All rights reserved. */
 
 #include <assert.h>
 #include <libgen.h>
@@ -25,7 +26,8 @@ static void update()
 {
 	FILE *proc;
 	unsigned long vm_MemTotal = 0, vm_MemFree = 0, vm_Buffers = 0,
-		      vm_Cached = 0, vm_Shmem = 0;
+		      vm_Cached = 0, vm_Shmem = 0,
+		      vm_SwapTotal = 0, vm_SwapFree = 0;
 	int i, j;
 	char buf[128];
 	char *argv[4];
@@ -91,12 +93,18 @@ cpuovfl:
 		} else if (prefmatch(buf, "Shmem:")) {
 			i++;
 			vm_Shmem = atoi(buf + sizeof("Shmem:"));
+		} else if (prefmatch(buf, "SwapTotal:")) {
+			i++;
+			vm_SwapTotal = atoi(buf + sizeof("SwapTotal:"));
+		} else if (prefmatch(buf, "SwapFree:")) {
+			i++;
+			vm_SwapFree = atoi(buf + sizeof("SwapFree:"));
 		}
-		if (i == 5)
+		if (i == 7)
 			break;
 	}
 	fclose(proc);
-	assert(i == 5);
+	assert(i == 7);
 	assert((vm_MemTotal - (vm_MemFree + vm_Buffers + vm_Cached + vm_Shmem)) +
 	       (vm_MemFree - vm_Shmem) + vm_Shmem + vm_Buffers +
 	       (vm_Cached + vm_Shmem) == vm_MemTotal);
@@ -107,6 +115,12 @@ cpuovfl:
 		 1024 * (vm_Cached + vm_Shmem));
 	argv[0] = "update";
 	argv[1] = "mem.rrd";
+	argv[2] = buf;
+	argv[3] = 0;
+	rrd_update(3, argv);
+	snprintf(buf, sizeof(buf), "N:%li", vm_SwapTotal - vm_SwapFree);
+	argv[0] = "update";
+	argv[1] = "swap.rrd";
 	argv[2] = buf;
 	argv[3] = 0;
 	rrd_update(3, argv);

@@ -77,11 +77,11 @@ my @graphs = (
 		'create' => "-v \"Bytes\" -b 1024 -r -l 0 -u ${MemTotal} DEF:used=mem.rrd:used:AVERAGE DEF:shared=mem.rrd:shared:AVERAGE DEF:buffers=mem.rrd:buffers:AVERAGE DEF:cache=mem.rrd:cache:AVERAGE AREA:used\#ff0000:\"used\" AREA:shared#7fff00:\"shared\":STACK AREA:buffers\#00ffff:\"buffers\":STACK AREA:cache\#7f00ff:\"cache\":STACK"
 	},
 
-#	{
-#		'name' => "swap",
-#		'title' => "Swap",
-#		'create' => "-v \"Bytes\" -b 1024 -g -l 0 DEF:usedb=swap.rrd:used:AVERAGE CDEF:used=usedb,1024,* LINE:used\#ff0000:\"Benutzt\""
-#	},
+	{
+		'name' => "swap",
+		'title' => "Swap",
+		'create' => "-v \"Bytes\" -b 1024 -g -l 0 DEF:usedb=swap.rrd:used:AVERAGE CDEF:used=usedb,1024,* LINE:used\#ff0000:\"Benutzt\""
+	},
 
 
 
