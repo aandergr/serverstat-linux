@@ -12,19 +12,19 @@ my $rrdtool_exe = "/usr/bin/rrdtool";
 
 my @ranges = (
 	{
-		'name' => "Tages",
+		'name' => "day",
 		'sec' => 86400
 	},
 	{
-		'name' => "Woche",
+		'name' => "week",
 		'sec' => 604800
 	},
 	{
-		'name' => "Acht Wochen",
+		'name' => "eight weeks",
 		'sec' => 4838400
 	},
 	{
-		'name' => "Jahres",
+		'name' => "year",
 		'sec' => 31536000
 	}
 );
@@ -44,7 +44,7 @@ my @graphs = (
 	{
 		'name' => "loadavg",
 		'title' => "Load Average",
-		'create' => "-v \"Threads\" -l 0 DEF:la5=loadavg.rrd:la5:AVERAGE DEF:la15=loadavg.rrd:la15:AVERAGE LINE:la5\#ff0000:\"Fünf Minuten\" LINE:la15\#00ffff:\"15 Minuten\""
+		'create' => "-v \"Threads\" -l 0 DEF:la5=loadavg.rrd:la5:AVERAGE DEF:la15=loadavg.rrd:la15:AVERAGE LINE:la5\#ff0000:\"five minutes\" LINE:la15\#00ffff:\"15 minutes\""
 	},
 
 	{
@@ -80,7 +80,7 @@ my @graphs = (
 	{
 		'name' => "swap",
 		'title' => "Swap",
-		'create' => "-v \"Bytes\" -b 1024 -g -l 0 DEF:usedb=swap.rrd:used:AVERAGE CDEF:used=usedb,1024,* LINE:used\#ff0000:\"Benutzt\""
+		'create' => "-v \"Bytes\" -b 1024 -g -l 0 DEF:usedb=swap.rrd:used:AVERAGE CDEF:used=usedb,1024,* LINE:used\#ff0000:\"used\""
 	},
 
 
@@ -107,17 +107,18 @@ print "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/T
 print "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">";
 
 print "<head>";
-print "<title>Serverstatistik</title>";
+print "<title>system usage statistics</title>";
 print "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\"/>";
 print "</head>";
 
 print "<body>";
-print "<h1>Serverstatistik</h1>";
+#print "<h1>Serverstatistik</h1>";
 #print "<p>Copyright (c) 2011, 2014 Alexander Graf.</p>";
 
 #print "<pre>"; system("uptime; echo; echo -n Temp:; cat /sys/devices/virtual/thermal/thermal_zone0/temp; echo; df -h; echo; free -tm"); print "</pre>";
 
-print "<p>Zeige Zeitraum des/der <b>letzten</b>: ";
+print "<p>Show period of <b>last</b>: ";
+
 
 for (my $range = 0; $range < @ranges; $range++) {
 	print " - " unless $range == 0;
