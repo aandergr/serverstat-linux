@@ -14,13 +14,17 @@
 
 #define HEARTBEAT	120
 
+/* uncomment this if you want to measure temperature. */
+//#define HAVE_TEMP
 #define TEMPSENSOR	"/sys/devices/virtual/thermal/thermal_zone0/temp"
 #define TEMPSAMPLES	8
 
 
 #define prefmatch(str, prefix) !strncmp(str, prefix, strlen(prefix))
 
+#ifdef HAVE_TEMP
 static int temp_sum;
+#endif
 
 static void update()
 {
@@ -137,6 +141,7 @@ cpuovfl:
 	argv[3] = 0;
 	rrd_update(3, argv);
 
+#ifdef HAVE_TEMP
 	/* cpu temperature */
 	snprintf(buf, sizeof(buf), "N:%.3f",
 		 temp_sum / 1000.0 / (float) TEMPSAMPLES);
@@ -146,17 +151,7 @@ cpuovfl:
 	argv[2] = buf;
 	argv[3] = 0;
 	rrd_update(3, argv);
-
-	/* swap usage */
-	#if 0
-	kvm_getswapinfo(kd, &kvm_swap, 1, 0);
-	snprintf(buf, sizeof(buf), "N:%li", ((long) kvm_swap.ksw_used)*4);
-	argv[0] = "update";
-	argv[1] = "swap.rrd";
-	argv[2] = buf;
-	argv[3] = 0;
-	rrd_update(3, argv);
-	#endif
+#endif
 
 	/* network usage */
 	proc = fopen("/proc/net/dev", "r");
@@ -220,24 +215,32 @@ cpuovfl:
 	last_valid = 1;
 }
 
+#ifdef HAVE_TEMP
 static void measure_temp()
 {
 	FILE *proc;
 	int i, temp;
 
 	proc = fopen(TEMPSENSOR, "r");
+	if (proc == NULL) {
+		fprintf(stderr, "Adjust TEMPSENSOR define in rrdupd.c!\n");
+		exit(1);
+	}
 	i = fscanf(proc, "%d", &temp);
 	assert(i == 1);
 	fclose(proc);
 
 	temp_sum += temp;
 }
+#endif
 
 int main(int argc, char **argv)
 {
 	struct timespec tp;
 	time_t nextrun;
+#ifdef HAVE_TEMP
 	int cnt = 0;
+#endif
 
 	/* go to directory where binary resides, as we expect rrd files there */
 	assert(argc == 1);
@@ -248,15 +251,20 @@ int main(int argc, char **argv)
 	nextrun = tp.tv_sec;
 
 	while (1) {
+#ifdef HAVE_TEMP
+		nextrun += HEARTBEAT / TEMPSAMPLES;
 		measure_temp();
 
 		if (++cnt == TEMPSAMPLES) {
 			update();
 			cnt = 0;
 		}
+#else
+		nextrun += HEARTBEAT;
+		update();
+#endif
 
 		clock_gettime(CLOCK_MONOTONIC, &tp);
-		nextrun += HEARTBEAT / TEMPSAMPLES;
 		if (nextrun - tp.tv_sec > 0)
 			sleep(nextrun - tp.tv_sec);
 	}
