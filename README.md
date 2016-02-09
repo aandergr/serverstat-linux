@@ -20,21 +20,26 @@ make and gcc). This program should be installed in a path where your webserver
 is able to execute the stat.pl script via its CGI.
 
 When these prerequisites are met, installation is done with following steps:
+
 1. Grab the latest release
 2. Build rrdupd using `make`
 3. Run `./mkrrd.sh` to initalize RRD databases
-4. Adjust permissions such that your webserver is able to execute stat.pl as a
+4. Adjust permissions such that your webserver is able to execute stat.pl as 
    CGI script, able to read .rrd files and able to write/create .png files in
    that directory
-5. Run `./rrdupd`. It should be started automatically on system startup. On
-   debian-alike systems, this can be achieved using:
-   ```
-   echo "start-stop-daemon -S -x /var/www/html/stat/rrdupd -c stat -b" >> /etc/rc.local
-   chmod +x /etc/rc.local
-   ```
-   (Where stat is the name of the user and /var/www/html/stat the path of this
-   software)
-   Consult the documentation of your operating system for more information.
+5. Run `./rrdupd`
+
+`./rrdupd` should be started automatically on system startup. On
+debian-alike systems, this can be achieved using:
+
+```
+echo "start-stop-daemon -S -x /var/www/html/stat/rrdupd -c stat -b" >> /etc/rc.local
+chmod +x /etc/rc.local
+```
+
+(Where stat is the name of the user and /var/www/html/stat the path of this
+software)
+Consult the documentation of your operating system for more information.
 
 Now you can (hopefully) point your browser to the direction of your stat.pl and
 everything works. Of course it will take a few minutes until you see some data.
