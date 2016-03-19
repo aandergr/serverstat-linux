@@ -22,12 +22,13 @@ is able to execute the stat.pl script via its CGI.
 When these prerequisites are met, installation is done with following steps:
 
 1. Grab the latest release
-2. Build rrdupd using `make`
-3. Run `./mkrrd.sh` to initalize RRD databases
-4. Adjust permissions such that your webserver is able to execute stat.pl as 
+2. You might adjust the files to fit your needs
+3. Build rrdupd using `make`
+4. Run `./mkrrd.sh` to initalize RRD databases
+5. Adjust permissions such that your webserver is able to execute stat.pl as 
    CGI script, able to read .rrd files and able to write/create .png files in
    that directory
-5. Run `./rrdupd`
+6. Run `./rrdupd`
 
 `./rrdupd` should be started automatically on system startup. On
 debian-alike systems, this can be achieved using:
@@ -41,5 +42,10 @@ chmod +x /etc/rc.local
 software)
 Consult the documentation of your operating system for more information.
 
-Now you can (hopefully) point your browser to the direction of your stat.pl and
+Now you can point your browser to the direction of your stat.pl and (hopefully)
 everything works. Of course it will take a few minutes until you see some data.
+
+# Screenshots
+
+It might look like this:
+![Screenshot of stat.pl page](https://raw.github.com/wiki/aandergr/serverstat-linux/screenshot-odroid.png)
