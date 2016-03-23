@@ -19,10 +19,13 @@ rrdtool create traffic.rrd -s 120\
 	RRA:AVERAGE:0.5:720:365
 
 rrdtool create mem.rrd -s 120	\
-	DS:used:GAUGE:240:0:U	\
+	DS:user:GAUGE:240:0:U	\
+	DS:kernel:GAUGE:240:0:U	\
+	DS:kernel-cache:GAUGE:240:0:U	\
+	DS:buffers:GAUGE:240:0:U	\
+	DS:cached:GAUGE:240:0:U	\
 	DS:shared:GAUGE:240:0:U	\
-	DS:buffers:GAUGE:240:0:U\
-	DS:cache:GAUGE:240:0:U	\
+	DS:other:GAUGE:240:0:U\
 	RRA:AVERAGE:0.5:1:720	\
 	RRA:AVERAGE:0.5:15:336	\
 	RRA:AVERAGE:0.5:180:224	\

@@ -74,7 +74,7 @@ my @graphs = (
 	{
 		'name' => "mem",
 		'title' => "RAM Usage",
-		'create' => "-v \"Bytes\" -b 1024 -r -l 0 -u ${MemTotal} DEF:used=mem.rrd:used:AVERAGE DEF:shared=mem.rrd:shared:AVERAGE DEF:buffers=mem.rrd:buffers:AVERAGE DEF:cache=mem.rrd:cache:AVERAGE AREA:used\#ff0000:\"used\" AREA:shared#7fff00:\"shared\":STACK AREA:buffers\#00ffff:\"buffers\":STACK AREA:cache\#7f00ff:\"cache\":STACK"
+		'create' => "-v \"Bytes\" -b 1024 -r -l 0 -u ${MemTotal} DEF:user=mem.rrd:user:AVERAGE DEF:kernel=mem.rrd:kernel:AVERAGE DEF:kernel-cache=mem.rrd:kernel-cache:AVERAGE DEF:buffers=mem.rrd:buffers:AVERAGE DEF:cached=mem.rrd:cached:AVERAGE DEF:shared=mem.rrd:shared:AVERAGE DEF:other=mem.rrd:other:AVERAGE AREA:user\#ff0000:\"user\" AREA:kernel\#48ff00:\"kernel\":STACK AREA:kernel-cache\#00ff91:\"kernel-cache\":STACK AREA:buffers\#0091ff:\"buffers\":STACK AREA:cached\#4800ff:\"cached\":STACK AREA:shared\#ffda00:\"shared\":STACK AREA:other\#ff00da:\"other\":STACK"
 	},
 
 	{

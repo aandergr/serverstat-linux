@@ -30,8 +30,9 @@ static void update()
 {
 	FILE *proc;
 	unsigned long vm_MemTotal = 0, vm_MemFree = 0, vm_Buffers = 0,
-		      vm_Cached = 0, vm_Shmem = 0,
-		      vm_SwapTotal = 0, vm_SwapFree = 0;
+		      vm_Cached = 0, vm_SwapCached = 0, vm_Shmem = 0,
+                      vm_PageTables = 0, vm_KernelStack = 0, vm_Slab = 0,
+		      vm_AnonPages = 0, vm_SwapTotal = 0, vm_SwapFree = 0;
 	int i, j;
 	char buf[128];
 	char *argv[4];
@@ -94,9 +95,24 @@ cpuovfl:
 		} else if (prefmatch(buf, "Cached:")) {
 			i++;
 			vm_Cached = atoi(buf + sizeof("Cached:"));
+		} else if (prefmatch(buf, "SwapCached:")) {
+			i++;
+			vm_SwapCached = atoi(buf + sizeof("SwapCached:"));
 		} else if (prefmatch(buf, "Shmem:")) {
 			i++;
 			vm_Shmem = atoi(buf + sizeof("Shmem:"));
+		} else if (prefmatch(buf, "PageTables:")) {
+			i++;
+			vm_PageTables = atoi(buf + sizeof("PageTables:"));
+		} else if (prefmatch(buf, "KernelStack:")) {
+			i++;
+			vm_KernelStack = atoi(buf + sizeof("KernelStack:"));
+		} else if (prefmatch(buf, "Slab:")) {
+			i++;
+			vm_Slab = atoi(buf + sizeof("Slab:"));
+		} else if (prefmatch(buf, "AnonPages:")) {
+			i++;
+			vm_AnonPages = atoi(buf + sizeof("AnonPages:"));
 		} else if (prefmatch(buf, "SwapTotal:")) {
 			i++;
 			vm_SwapTotal = atoi(buf + sizeof("SwapTotal:"));
@@ -104,19 +120,26 @@ cpuovfl:
 			i++;
 			vm_SwapFree = atoi(buf + sizeof("SwapFree:"));
 		}
-		if (i == 7)
+		if (i == 12)
 			break;
 	}
 	fclose(proc);
-	assert(i == 7);
-	assert((vm_MemTotal - (vm_MemFree + vm_Buffers + vm_Cached + vm_Shmem)) +
-	       (vm_MemFree - vm_Shmem) + vm_Shmem + vm_Buffers +
-	       (vm_Cached + vm_Shmem) == vm_MemTotal);
-	snprintf(buf, sizeof(buf), "N:%lu:%lu:%lu:%lu",
-		 1024 * (vm_MemTotal - (vm_MemFree + vm_Buffers + vm_Cached + vm_Shmem)),
-		 1024 * vm_Shmem,
+	assert(i == 12);
+	// tautological assert:
+	/*assert((vm_MemTotal - (vm_MemFree + vm_Buffers + vm_Cached + vm_Shmem)) +
+		(vm_MemFree - vm_Shmem) + vm_Shmem + vm_Buffers +
+		(vm_Cached + vm_Shmem) == vm_MemTotal);
+	*/
+	snprintf(buf, sizeof(buf), "N:%lu:%lu:%lu:%lu:%lu:%lu:%lu",
+		 1024 * vm_AnonPages,
+		 1024 * (vm_PageTables + vm_KernelStack),
+		 1024 * vm_Slab,
 		 1024 * vm_Buffers,
-		 1024 * (vm_Cached + vm_Shmem));
+		 1024 * (vm_Cached + vm_SwapCached - vm_Shmem),
+		 1024 * vm_Shmem,
+		 1024 * (vm_MemTotal - (vm_MemFree + vm_AnonPages +
+					vm_PageTables + vm_KernelStack + vm_Slab +
+					vm_Buffers + vm_Cached + vm_SwapCached)));
 	argv[0] = "update";
 	argv[1] = "mem.rrd";
 	argv[2] = buf;
