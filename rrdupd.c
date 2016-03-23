@@ -34,7 +34,7 @@ static void update()
                       vm_PageTables = 0, vm_KernelStack = 0, vm_Slab = 0,
 		      vm_AnonPages = 0, vm_SwapTotal = 0, vm_SwapFree = 0;
 	int i, j;
-	char buf[128];
+	char buf[256];
 	char *argv[4];
 	unsigned long cp_times[7], cp_times_diff[7], cp_times_dsum;
 	static unsigned long last_cp_times[7];
