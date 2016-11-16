@@ -21,7 +21,7 @@ is able to execute the stat.pl script via its CGI.
 
 When these prerequisites are met, installation is done with following steps:
 
-1. Grab the latest release
+1. Download serverstat-linux, e.g. by doing `git clone https://github.com/aandergr/serverstat-linux`
 2. You might adjust the files to fit your needs
 3. Build rrdupd using `make`
 4. Run `./mkrrd.sh` to initalize RRD databases
