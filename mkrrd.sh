@@ -57,12 +57,10 @@ rrdtool create cpu.rrd -s 120	\
 	RRA:AVERAGE:0.5:180:224	\
 	RRA:AVERAGE:0.5:720:365
 
-#rrdtool create disk.rrd -s 120	\
-#	DS:r0:GAUGE:240:0:U	\
-#	DS:r1:GAUGE:240:0:U	\
-#	DS:w0:GAUGE:240:0:U	\
-#	DS:w1:GAUGE:240:0:U	\
-#	RRA:AVERAGE:0.5:1:720	\
-#	RRA:AVERAGE:0.5:15:336	\
-#	RRA:AVERAGE:0.5:180:224	\
-#	RRA:AVERAGE:0.5:720:365
+rrdtool create disk.rrd -s 120	\
+	DS:r:GAUGE:240:0:U	\
+	DS:w:GAUGE:240:0:U	\
+	RRA:AVERAGE:0.5:1:720	\
+	RRA:AVERAGE:0.5:15:336	\
+	RRA:AVERAGE:0.5:180:224	\
+	RRA:AVERAGE:0.5:720:365

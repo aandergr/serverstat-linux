@@ -58,12 +58,12 @@ my @graphs = (
 		'title' => "CPU Temperature",
 		'create' => "-v \"deg. Celsius\" -g -A DEF:c0=temp.rrd:core:AVERAGE LINE:c0\#ff0000:\"cpu\""
 	},
-#
-#	{
-#		'name' => "disk",
-#		'title' => "Disk I/O",
-#		'create' => "-v \"Bits/Second\" DEF:r0=disk.rrd:r0:AVERAGE DEF:r1=disk.rrd:r1:AVERAGE DEF:w0=disk.rrd:w0:AVERAGE DEF:w1=disk.rrd:w1:AVERAGE CDEF:r0b=r0,8,* CDEF:r1b=r1,8,* CDEF:w0b=w0,-8,* CDEF:w1b=w1,-8,* AREA:r0b\#ff0000:\"read0\" AREA:r1b\#ffff00:\"read1\":STACK HRULE:0#000000 AREA:w0b\#00ffff:\"write0\" AREA:w1b\#0000ff:\"write1\":STACK"
-#	},
+
+	{
+		'name' => "disk",
+		'title' => "Disk I/O",
+		'create' => "-v \"Bits/Second\" DEF:r=disk.rrd:r:AVERAGE DEF:w=disk.rrd:w:AVERAGE CDEF:wb=w,-1,* AREA:r\#ff0000:\"read\" HRULE:0#000000 AREA:wb\#00ffff:\"write\""
+	},
 
 	{
 		'name' => "traffic",

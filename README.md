@@ -5,7 +5,7 @@ This is a tool providing a CGI page **plotting system usage statistics** using
 it is very **simple** and therefore **easy to understand and extend**.  
 
 Currently it collects **Load Average**, **CPU usage**, **Temperature**,
-**Network Traffic** and **Memory and Swap Usage**, which are plotted over a
+**Disk I/O**, **Network Traffic** and **Memory and Swap Usage**, which are plotted over a
 period chosen by the user at runtime.
 
 It is build up of two parts:

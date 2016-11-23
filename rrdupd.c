@@ -2,6 +2,7 @@
  * All rights reserved. */
 
 #include <assert.h>
+#include <linux/major.h>
 #include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +27,54 @@
 static int temp_sum;
 #endif
 
+#if !defined(LVM_BLK_MAJOR)
+#define LVM_BLK_MAJOR 58
+#endif
+
+#if !defined(DM_MAJOR)
+#define DM_MAJOR 254
+#endif
+
+typedef struct list {
+	char *devname;
+	char is_device;
+	struct list *next;
+} *devicelist;
+
+static devicelist devices = NULL;
+
+static devicelist insert(devicelist list, char *device, char is_device) {
+	devicelist tmplist = (devicelist) malloc(sizeof(struct list));
+	if (list == NULL) {
+		tmplist->next = NULL;
+	} else {
+		tmplist->next = list;
+	}
+	int size = strlen(device) + 1;
+	tmplist->devname = (char*) malloc(size);
+	strncpy(tmplist->devname, device, size);
+	tmplist->is_device = is_device;
+	return tmplist;
+}
+
+static char is_disk(char *dev) {
+	char devpath[27] =  "/sys/block/";
+	strncat(devpath, dev, 27);
+	devicelist tmplist = devices;
+	while (tmplist != NULL) {
+		if (!strcmp(tmplist->devname, dev))
+			break;
+		tmplist = tmplist->next;
+	}
+	if (tmplist != NULL)
+		return tmplist->is_device;
+	else {
+		char is_device = !access(devpath, F_OK);
+		devices = insert(devices, dev, is_device);
+		return is_device;
+	}
+}
+
 static void update()
 {
 	FILE *proc;
@@ -45,6 +94,9 @@ static void update()
 	unsigned long ibytes, obytes;
 	unsigned long ibytes_d, obytes_d;
 	static unsigned long last_ibytes, last_obytes;
+	unsigned int major, minor;
+	unsigned long reads, writes, reads_d, writes_d;
+	static unsigned long last_reads, last_writes;
 
 
 	/* CPU usage */
@@ -210,30 +262,36 @@ cpuovfl:
 	last_obytes = obytes;
 
 	/* disk I/O */
-	#if 0
-	statinfo.dinfo = &devinfo;
-	devstat_getdevs(NULL, &statinfo);
+	proc = fopen("/proc/diskstats", "r");
+	reads = writes = 0;
+	while (fgets(buf, sizeof(buf), proc)) {
+		j = sscanf(buf, "%u %u %s %*u %*u %lu %*u %*u %*u %lu", &major,
+			   &minor, devname, &reads_d, &writes_d);
+		if (j == 5 && major != LVM_BLK_MAJOR && major != NBD_MAJOR
+						&& major != RAMDISK_MAJOR && major != LOOP_MAJOR
+						&& major != DM_MAJOR) {
+			if (is_disk(devname)) {
+				reads += reads_d;
+				writes += writes_d;
+			}
+		}
+	}
+	fclose(proc);
 	if (last_valid &&
-	    devinfo.devices[0].bytes[DEVSTAT_READ] >= last_dread[0] &&
-	    devinfo.devices[1].bytes[DEVSTAT_READ] >= last_dread[1] &&
-	    devinfo.devices[0].bytes[DEVSTAT_WRITE] >= last_dwrite[0] &&
-	    devinfo.devices[1].bytes[DEVSTAT_WRITE] >= last_dwrite[1]) {
-		snprintf(buf, sizeof(buf), "N:%lu:%lu:%lu:%lu",
-			 (devinfo.devices[0].bytes[DEVSTAT_READ]-last_dread[0]) / HEARTBEAT,
-			 (devinfo.devices[1].bytes[DEVSTAT_READ]-last_dread[1]) / HEARTBEAT,
-			 (devinfo.devices[0].bytes[DEVSTAT_WRITE]-last_dwrite[0]) / HEARTBEAT,
-			 (devinfo.devices[1].bytes[DEVSTAT_WRITE]-last_dwrite[1]) / HEARTBEAT);
+	    reads >= last_reads &&
+	    writes >= last_writes) {
+		snprintf(buf, sizeof(buf), "N:%lu:%lu",
+			 4096*(reads-last_reads)/HEARTBEAT,
+			 4096*(writes-last_writes)/HEARTBEAT);
 		argv[0] = "update";
 		argv[1] = "disk.rrd";
 		argv[2] = buf;
 		argv[3] = 0;
 		rrd_update(3, argv);
+		printf("%s\n", buf);
 	}
-	last_dread[0] = devinfo.devices[0].bytes[DEVSTAT_READ];
-	last_dread[1] = devinfo.devices[1].bytes[DEVSTAT_READ];
-	last_dwrite[0] = devinfo.devices[0].bytes[DEVSTAT_WRITE];
-	last_dwrite[1] = devinfo.devices[1].bytes[DEVSTAT_WRITE];
-	#endif
+	last_reads = reads;
+	last_writes = writes;
 
 	last_valid = 1;
 }
