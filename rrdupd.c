@@ -85,23 +85,23 @@ static void update()
 	int i, j;
 	char buf[256];
 	char *argv[4];
-	unsigned long cp_times[7], cp_times_diff[7], cp_times_dsum;
-	static unsigned long last_cp_times[7];
+	unsigned long long cp_times[7], cp_times_diff[7], cp_times_dsum;
+	static unsigned long long last_cp_times[7];
 	static int last_valid;
 	float cp_times_dn[7];
 	float loadavg5, loadavg15;
 	char devname[16];
-	unsigned long ibytes, obytes;
-	unsigned long ibytes_d, obytes_d;
-	static unsigned long last_ibytes, last_obytes;
+	unsigned long long ibytes, obytes;
+	unsigned long long ibytes_d, obytes_d;
+	static unsigned long long last_ibytes, last_obytes;
 	unsigned int major, minor;
-	unsigned long reads, writes, reads_d, writes_d;
-	static unsigned long last_reads, last_writes;
+	unsigned long long reads, writes, reads_d, writes_d;
+	static unsigned long long last_reads, last_writes;
 
 
 	/* CPU usage */
 	proc = fopen("/proc/stat", "r");
-	i = fscanf(proc, "%*s %ld %ld %ld %ld %ld %ld %ld",
+	i = fscanf(proc, "%*s %Lu %Lu %Lu %Lu %Lu %Lu %Lu",
 		   &cp_times[0], &cp_times[1], &cp_times[2], &cp_times[3],
 		   &cp_times[4], &cp_times[5], &cp_times[6]);
 	assert(i == 7);
@@ -236,7 +236,7 @@ cpuovfl:
 		if (i++ < 2)
 			/* skip first two lines */
 			continue;
-		j = sscanf(buf, "%15s %ld %*d %*d %*d %*d %*d %*d %*d %ld",
+		j = sscanf(buf, "%15s %Lu %*d %*d %*d %*d %*d %*d %*d %Lu",
 			   devname, &ibytes_d, &obytes_d);
 		assert(j == 3);
 		if (!strcmp(devname, "lo:"))
@@ -249,7 +249,7 @@ cpuovfl:
 	if (last_valid &&
 	    ibytes >= last_ibytes &&
 	    obytes >= last_obytes) {
-		snprintf(buf, sizeof(buf), "N:%lu:%lu",
+		snprintf(buf, sizeof(buf), "N:%Lu:%Lu",
 			 (ibytes-last_ibytes)/HEARTBEAT,
 			 (obytes-last_obytes)/HEARTBEAT);
 		argv[0] = "update";
@@ -265,7 +265,7 @@ cpuovfl:
 	proc = fopen("/proc/diskstats", "r");
 	reads = writes = 0;
 	while (fgets(buf, sizeof(buf), proc)) {
-		j = sscanf(buf, "%u %u %s %*u %*u %lu %*u %*u %*u %lu", &major,
+		j = sscanf(buf, "%u %u %s %*u %*u %Lu %*u %*u %*u %Lu", &major,
 			   &minor, devname, &reads_d, &writes_d);
 		if (j == 5 && major != LVM_BLK_MAJOR && major != NBD_MAJOR
 						&& major != RAMDISK_MAJOR && major != LOOP_MAJOR
@@ -280,7 +280,7 @@ cpuovfl:
 	if (last_valid &&
 	    reads >= last_reads &&
 	    writes >= last_writes) {
-		snprintf(buf, sizeof(buf), "N:%lu:%lu",
+		snprintf(buf, sizeof(buf), "N:%Lu:%Lu",
 			 4096*(reads-last_reads)/HEARTBEAT,
 			 4096*(writes-last_writes)/HEARTBEAT);
 		argv[0] = "update";
@@ -288,7 +288,6 @@ cpuovfl:
 		argv[2] = buf;
 		argv[3] = 0;
 		rrd_update(3, argv);
-		printf("%s\n", buf);
 	}
 	last_reads = reads;
 	last_writes = writes;
