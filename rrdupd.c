@@ -28,12 +28,11 @@ static int temp_sum;
 #endif
 
 #if !defined(LVM_BLK_MAJOR)
-#define LVM_BLK_MAJOR 58
+#define LVM_BLK_MAJOR	58
 #endif
 
-#if !defined(DM_MAJOR)
-#define DM_MAJOR 254
-#endif
+#define DM_MAJOR_RAID	253
+#define DM_MAJOR_CRYPT	254
 
 typedef struct list {
 	char *devname;
@@ -268,8 +267,8 @@ cpuovfl:
 		j = sscanf(buf, "%u %u %s %*u %*u %Lu %*u %*u %*u %Lu", &major,
 			   &minor, devname, &reads_d, &writes_d);
 		if (j == 5 && major != LVM_BLK_MAJOR && major != NBD_MAJOR
-						&& major != RAMDISK_MAJOR && major != LOOP_MAJOR
-						&& major != DM_MAJOR) {
+		    && major != RAMDISK_MAJOR && major != LOOP_MAJOR
+		    && major != DM_MAJOR_CRYPT && major != DM_MAJOR_RAID) {
 			if (is_disk(devname)) {
 				reads += reads_d;
 				writes += writes_d;

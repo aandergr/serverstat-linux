@@ -44,25 +44,25 @@ my @graphs = (
 	{
 		'name' => "loadavg",
 		'title' => "Load Average",
-		'create' => "-v \"Threads\" -l 0 DEF:la5=loadavg.rrd:la5:AVERAGE DEF:la15=loadavg.rrd:la15:AVERAGE LINE:la5\#ff0000:\"five minutes\" LINE:la15\#00ffff:\"15 minutes\""
+		'create' => "-v \"Running Threads\" -l 0 DEF:la5=loadavg.rrd:la5:AVERAGE DEF:la15=loadavg.rrd:la15:AVERAGE LINE:la5\#ff0000:\"Five Minutes Average\" LINE:la15\#00ffff:\"15 Minutes Average\""
 	},
 
 	{
 		'name' => "cpu",
 		'title' => "CPU Usage",
-		'create' => "-v \"CPU usage\" -r -l 0 -u 1 DEF:user=cpu.rrd:user:AVERAGE DEF:nice=cpu.rrd:nice:AVERAGE DEF:system=cpu.rrd:system:AVERAGE DEF:iowait=cpu.rrd:iowait:AVERAGE DEF:irq=cpu.rrd:irq:AVERAGE DEF:softirq=cpu.rrd:softirq:AVERAGE AREA:user\#ff0000:\"user\" AREA:nice\#ffff00:\"nice\":STACK AREA:system\#00ff00:\"system\":STACK AREA:iowait\#00ffff:\"iowait\":STACK AREA:irq\#0000ff:\"irq\":STACK AREA:softirq\#ff00ff:\"softirq\":STACK"
+		'create' => "-v \"CPU Usage\" -r -l 0 -u 1 DEF:user=cpu.rrd:user:AVERAGE DEF:nice=cpu.rrd:nice:AVERAGE DEF:system=cpu.rrd:system:AVERAGE DEF:iowait=cpu.rrd:iowait:AVERAGE DEF:irq=cpu.rrd:irq:AVERAGE DEF:softirq=cpu.rrd:softirq:AVERAGE AREA:user\#ff0000:\"user\" AREA:nice\#ffff00:\"nice\":STACK AREA:system\#00ff00:\"system\":STACK AREA:iowait\#00ffff:\"iowait\":STACK AREA:irq\#0000ff:\"irq\":STACK AREA:softirq\#ff00ff:\"softirq\":STACK"
 	},
 
 	{
 		'name' => "temp",
 		'title' => "CPU Temperature",
-		'create' => "-v \"deg. Celsius\" -g -A DEF:c0=temp.rrd:core:AVERAGE LINE:c0\#ff0000:\"cpu\""
+		'create' => "-v \"Degree Celsius\" -g -A DEF:c0=temp.rrd:core:AVERAGE LINE:c0\#ff0000:\"CPU\""
 	},
 
 	{
 		'name' => "disk",
-		'title' => "Disk I/O",
-		'create' => "-v \"Bits/Second\" DEF:r=disk.rrd:r:AVERAGE DEF:w=disk.rrd:w:AVERAGE CDEF:wb=w,-1,* AREA:r\#ff0000:\"read\" HRULE:0#000000 AREA:wb\#00ffff:\"write\""
+		'title' => "Disk R/W",
+		'create' => "-v \"Bits/Second\" DEF:r=disk.rrd:r:AVERAGE DEF:w=disk.rrd:w:AVERAGE CDEF:wb=w,-1,* AREA:r\#ff0000:\"Read\" HRULE:0#000000 AREA:wb\#00ffff:\"Write\""
 	},
 
 	{
@@ -80,7 +80,7 @@ my @graphs = (
 	{
 		'name' => "swap",
 		'title' => "Swap",
-		'create' => "-v \"Bytes\" -b 1024 -g -l 0 DEF:usedb=swap.rrd:used:AVERAGE CDEF:used=usedb,1024,* LINE:used\#ff0000:\"used\""
+		'create' => "-v \"Bytes\" -b 1024 -g -l 0 DEF:usedb=swap.rrd:used:AVERAGE CDEF:used=usedb,1024,* LINE:used\#ff0000:\"Used\""
 	},
 
 
