@@ -40,6 +40,9 @@ chmod +x /etc/rc.local
 
 (Where stat is the name of the user and /var/www/html/stat the path of this
 software)
+
+Also, there is a `serverstat-linux.service` systemctl script template in this repository.
+
 Consult the documentation of your operating system for more information.
 
 Now you can point your browser to the direction of your stat.pl and (hopefully)

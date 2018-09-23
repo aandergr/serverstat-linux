@@ -1,0 +1,11 @@
+[Unit]
+Description=serverstat-linux rrdupd daemon
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/http/serverstat-linux
+ExecStart=/srv/http/serverstat-linux/rrdupd
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
